@@ -1,0 +1,32 @@
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - durationcheck
+    - errname
+    - errorlint
+    - exportloopref
+    - goimports
+    - gosec
+    - gocritic
+
+linters-settings: 
+  cyclop:
+    max-complexity: 15
+  gocritic:
+    disabled-checks:
+      - singleCaseSwitch
+
+issues:
+  exclude-rules:
+    - path: "."
+      linters:
+        - typecheck

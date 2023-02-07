@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  pull_request:
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  test:
+    name: Build project
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Set up QEMU
+        uses: ghostsecurity/setup-qemu-action@v2
+        if: matrix.os == 'ubuntu-22.04'
+        
+      - name: Set up Docker Buildx
+        uses: ghostsecurity/setup-buildx-action@v2
+      
+      - name: Build
+        run: make build

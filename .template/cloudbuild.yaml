@@ -1,0 +1,39 @@
+steps:
+  - id: 'run tests'
+    name: golang:1.19
+    entrypoint: /bin/bash
+    args:
+      - -c
+      - |
+        go install github.com/jstemmer/go-junit-report/v2@latest
+        2>&1 go test -timeout 1m -v `go list ./... | grep -v integration` | /go/bin/go-junit-report -set-exit-code -iocopy -out ${SHORT_SHA}_test_log.xml
+
+  - id: 'build image'
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        '${_REPOSITORY_LOCATION}-docker.pkg.dev/${_REPOSITORY_PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_GENERATED_VERSION}',
+        '-f',
+        'Dockerfile',
+        '.',
+      ]
+
+  - id: 'push image'
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        '${_REPOSITORY_LOCATION}-docker.pkg.dev/${_REPOSITORY_PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_GENERATED_VERSION}',
+      ]
+
+options:
+  dynamic_substitutions: true
+  logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _SERVICE_NAME: PROJECTNAME
+  _GENERATED_VERSION: ${TAG_NAME:-${SHORT_SHA}}
+  _REPOSITORY: docker
+  _REPOSITORY_LOCATION: us
+  _REPOSITORY_PROJECT_ID: gs-artifacts
